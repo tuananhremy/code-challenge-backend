@@ -27,8 +27,7 @@ func main() {
 
 	r.Use(gin.Recovery())
 	r.Use(gin.Logger())
-	noAuth := r.Group("/api/v1")
-	noAuth.POST("/checkin", checkin.CheckIn)
+	r.POST("/checkin", checkin.CheckIn)
 
 	r.GET("/seats", h.ListAvailableSeats)
 	r.POST("/book-seat", h.BookSeat)

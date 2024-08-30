@@ -138,6 +138,13 @@ func (ds *DataStorage) FindSeats() ([]Seat, error) {
 	return seats, err
 }
 
+// Find bookings that start_time and end_time of request is overlap with start_time and end_time of bookings
+func (ds *DataStorage) FindOverlapBookings(startTime, endTime time.Time) ([]Booking, error) {
+	var bookings []Booking
+	err := ds.mysqlDB.Where("start_time < ? OR end_time > ?", endTime, startTime).Find(&bookings).Error
+	return bookings, err
+}
+
 // gorm transaction
 func (ds *DataStorage) Transaction(fn func(ds *DataStorage) error) error {
 	return ds.mysqlDB.Transaction(func(tx *gorm.DB) error {

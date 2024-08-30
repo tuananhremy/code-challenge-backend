@@ -49,7 +49,17 @@ func (h *Handler) Login(c *gin.Context) {
 }
 
 func (h *Handler) ListAvailableSeats(c *gin.Context) {
-	seats, err := h.ds.FindSeats()
+	var request struct {
+		FromTime time.Time `json:"from_time" binding:"required"`
+		ToTime   time.Time `json:"to_time" binding:"required"`
+	}
+	err := c.ShouldBindBodyWithJSON(&request)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		return
+	}
+
+	seats, err := h.ds.FindAvailableSeats(request.FromTime, request.ToTime)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
 		return

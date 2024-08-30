@@ -132,10 +132,26 @@ func (ds *DataStorage) Booking(id uint) (*User, error) {
 }
 
 // Find seats
-func (ds *DataStorage) FindSeats() ([]Seat, error) {
+func (ds *DataStorage) FindAvailableSeats(fromTime, toTime time.Time) ([]Seat, error) {
 	var seats []Seat
-	err := ds.mysqlDB.Find(&seats).Error
-	return seats, err
+	err := ds.mysqlDB.Raw(`
+        SELECT s.*
+        FROM seats s
+        WHERE NOT EXISTS (
+            SELECT 1
+            FROM bookings b
+            WHERE b.seat_id = s.id
+            AND (
+                (b.start_time < ? AND b.end_time > ?)
+                OR (b.start_time < ? AND b.end_time > ?)
+                OR (b.start_time >= ? AND b.end_time <= ?)
+            )
+        )
+    `, toTime, fromTime, toTime, fromTime, fromTime, toTime).Scan(&seats).Error
+	if err != nil {
+		return nil, err
+	}
+	return seats, nil
 }
 
 // Find bookings that start_time and end_time of request is overlap with start_time and end_time of bookings

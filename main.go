@@ -24,7 +24,7 @@ func main() {
 		checkin = app.NewCheckInService(ds, viper.GetString("jwt_secret"))
 	)
 	go checkin.ReleaseBooking()
-
+	r.Use(cors.Default())
 	r.Use(gin.Recovery())
 	r.Use(gin.Logger())
 	r.POST("/checkin", checkin.CheckIn)

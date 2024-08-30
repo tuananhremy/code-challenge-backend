@@ -80,7 +80,7 @@ func (ds *DataStorage) ReleaseBooking() error {
         FROM bookings
         WHERE checked_in = false
         AND start_time < ?
-    `, time.Now().Add(-10*time.Second)).Scan(&bookings).Error
+    `, time.Now().Add(-10*time.Minute)).Scan(&bookings).Error
 	if err != nil {
 		return err
 	}
@@ -140,7 +140,8 @@ func (ds *DataStorage) FindAvailableSeats(fromTime, toTime time.Time) ([]Seat, e
         WHERE NOT EXISTS (
             SELECT 1
             FROM bookings b
-            WHERE b.seat_id = s.id
+            WHERE b.seat_id = s.id and
+              b.checked_in = false
             AND (
                 (b.start_time < ? AND b.end_time > ?)
                 OR (b.start_time < ? AND b.end_time > ?)

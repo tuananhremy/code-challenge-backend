@@ -25,8 +25,8 @@ func NewHandler(ds *DataStorage) *Handler {
 
 func (h *Handler) ListAvailableSeats(c *gin.Context) {
 	var request struct {
-		FromTime string `json:"from_time"`
-		ToTime   string `json:"to_time"`
+		FromTime time.Time `json:"from_time" binding:"required"`
+		ToTime   time.Time `json:"to_time" binding:"required"`
 	}
 	err := c.ShouldBindBodyWithJSON(&request)
 	if err != nil {
@@ -34,7 +34,7 @@ func (h *Handler) ListAvailableSeats(c *gin.Context) {
 		return
 	}
 
-	seats, err := h.ds.FindAvailableSeats()
+	seats, err := h.ds.FindAvailableSeats(request.FromTime, request.ToTime)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
 		return

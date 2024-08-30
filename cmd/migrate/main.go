@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"code-challenge/app"
+	"code-challenge-backend/app"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -16,7 +16,7 @@ func main() {
 	}
 
 	// Migrate the schema
-	err = db.AutoMigrate(&app.User{}, &app.Seat{}, &app.Booking{})
+	err = db.AutoMigrate(&app.User{})
 	if err != nil {
 		log.Fatalf("failed to migrate database: %v", err)
 	}

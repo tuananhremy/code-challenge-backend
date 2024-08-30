@@ -23,7 +23,7 @@ func main() {
 		h       = app.NewHandler(ds)
 		checkin = app.NewCheckInService(ds, viper.GetString("jwt_secret"))
 	)
-	go checkin.ReleaseBooking()
+	//go checkin.ReleaseBooking()
 
 	r.Use(gin.Recovery())
 	r.Use(gin.Logger())

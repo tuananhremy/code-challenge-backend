@@ -117,8 +117,7 @@ func (ds *DataStorage) FindAvailableSeats(fromTime, toTime time.Time) ([]Seat, e
         WHERE NOT EXISTS (
             SELECT 1
             FROM bookings b
-            WHERE b.seat_id = s.id and
-              b.checked_in = false
+            WHERE b.seat_id = s.id
             AND (
                 (b.start_time < ? AND b.end_time > ?)
                 OR (b.start_time < ? AND b.end_time > ?)

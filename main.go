@@ -19,21 +19,14 @@ func main() {
 	var (
 		r  = gin.Default()
 		ds = app.NewDataStorage(viper.GetString("db"))
-		h  = app.NewHandler(ds, viper.GetString("jwt_secret"))
-		m  = app.NewMiddleware(viper.GetString("jwt_secret"))
+		h  = app.NewHandler(ds)
+		//m  = app.NewMiddleware(viper.GetString("jwt_secret"))
 	)
 
 	r.Use(gin.Recovery())
 	r.Use(gin.Logger())
-	noAuth := r.Group("/api/v1")
-	auth := r.Group("/api/v1")
 
-	noAuth.POST("/register", h.Register)
-	noAuth.POST("/login", h.Login)
-
-	auth.Use(m.ValidateJWT)
-	auth.GET("/seats", h.GetSeats)
-	auth.POST("/book", h.BookSeat)
+	r.GET("/seats", h.ListAvailableSeats)
 
 	log.Fatal(r.Run(":8080"))
 }

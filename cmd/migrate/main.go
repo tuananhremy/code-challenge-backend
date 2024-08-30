@@ -16,7 +16,7 @@ func main() {
 	}
 
 	// Migrate the schema
-	err = db.AutoMigrate(&app.User{})
+	err = db.AutoMigrate(&app.User{}, &app.Seat{}, &app.Booking{})
 	if err != nil {
 		log.Fatalf("failed to migrate database: %v", err)
 	}

@@ -38,21 +38,7 @@ func (ds *DataStorage) Upsert(user *User) error {
 
 func (ds *DataStorage) QueryBooking(bookingId uint) (*Booking, error) {
 	result := Booking{}
-	err := ds.mysqlDB.Model(&Booking{}).Raw(`
-    SELECT id, user_id, seat_id, start_time, end_time, checked_in 
-    FROM bookings 
-    WHERE id = ? 
-    AND NOT EXISTS (
-        SELECT 1 
-        FROM bookings AS b 
-        WHERE b.seat_id = bookings.seat_id 
-        AND b.id != bookings.id 
-        AND (
-            (b.start_time < bookings.end_time AND b.end_time > bookings.start_time)
-        )
-    )
-`, bookingId).
-		Scan(&result).Error
+	err := ds.mysqlDB.Model(&Booking{}).Where("id = ?", bookingId).First(&result).Error
 	if err != nil {
 		return nil, err
 	}
@@ -61,11 +47,6 @@ func (ds *DataStorage) QueryBooking(bookingId uint) (*Booking, error) {
 
 func (ds *DataStorage) ReseverBooking(booking *Booking) error {
 	err := ds.mysqlDB.Exec("UPDATE bookings SET checked_in = true WHERE id = ?", booking.ID).Error
-	if err != nil {
-		return err
-	}
-	// Insert the check-in record into the database
-	err = ds.mysqlDB.Exec("INSERT INTO check_ins (booking_id) VALUES (?)", booking.ID).Error
 	if err != nil {
 		return err
 	}

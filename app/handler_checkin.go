@@ -59,8 +59,13 @@ func (h *CheckinService) CheckIn(c *gin.Context) {
 		return
 	}
 
-	if time.Now().Sub(booking.StartTime) > 10*time.Minute {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Check-in time exceeded"})
+	if booking.StartTime.After(time.Now()) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Check-in time not reached"})
+		return
+	}
+
+	if booking.EndTime.Before(time.Now()) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Booking has expired"})
 		return
 	}
 

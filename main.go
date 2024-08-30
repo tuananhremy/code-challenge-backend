@@ -5,6 +5,8 @@ import (
 
 	"code-challenge-backend/app"
 
+	"github.cgin-contrib/cors"
+
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 )

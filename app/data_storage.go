@@ -157,7 +157,10 @@ func (ds *DataStorage) FindAvailableSeats(fromTime, toTime time.Time) ([]Seat, e
 // Find bookings that start_time and end_time of request is overlap with start_time and end_time of bookings
 func (ds *DataStorage) FindOverlapBookings(startTime, endTime time.Time) ([]Booking, error) {
 	var bookings []Booking
-	err := ds.mysqlDB.Where("start_time < ? OR end_time > ?", endTime, startTime).Find(&bookings).Error
+	err := ds.mysqlDB.Where("start_time <= ? AND end_time => ?", endTime, startTime).Find(&bookings).Error
+	if err != nil {
+		return nil, err
+	}
 	return bookings, err
 }
 

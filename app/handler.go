@@ -24,7 +24,17 @@ func NewHandler(ds *DataStorage) *Handler {
 }
 
 func (h *Handler) ListAvailableSeats(c *gin.Context) {
-	seats, err := h.ds.FindSeats()
+	var request struct {
+		FromTime string `json:"from_time"`
+		ToTime   string `json:"to_time"`
+	}
+	err := c.ShouldBindBodyWithJSON(&request)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		return
+	}
+
+	seats, err := h.ds.FindAvailableSeats()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
 		return

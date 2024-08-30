@@ -65,10 +65,10 @@ func (h *Handler) BookSeat(c *gin.Context) {
 	}
 
 	booking := &Booking{
-		UserID:   request.UserID,
-		SeatID:   seat.ID,
-		FromTime: fromTime,
-		ToTime:   toTime,
+		UserID:    request.UserID,
+		SeatID:    seat.ID,
+		StartTime: fromTime,
+		EndTime:   toTime,
 	}
 
 	if err := h.ds.CreateBooking(booking); err != nil {

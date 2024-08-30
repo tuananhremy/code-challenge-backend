@@ -20,6 +20,7 @@ func main() {
 	var (
 		r       = gin.Default()
 		ds      = app.NewDataStorage(viper.GetString("db"))
+		h       = app.NewHandler(ds)
 		checkin = app.NewCheckInService(ds, viper.GetString("jwt_secret"))
 	)
 	go checkin.ReleaseBooking()

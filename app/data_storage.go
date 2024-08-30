@@ -23,7 +23,7 @@ func NewDataStorage(dns string) *DataStorage {
 	}
 }
 
-func (ds *DataStorage) QueryBooking(bookingId string) (*Booking, error) {
+func (ds *DataStorage) QueryBooking(bookingId uint) (*Booking, error) {
 	result := Booking{}
 	err := ds.mysqlDB.Model(&Booking{}).Raw(`
     SELECT id, user_id, seat_id, start_time, end_time, checked_in 

@@ -18,8 +18,8 @@ type Seat struct {
 
 type Booking struct {
 	ID        int       `json:"id"`
-	UserID    string    `json:"user_id"`
-	SeatID    string    `json:"seat_id"`
+	UserID    uint      `json:"user_id"`
+	SeatID    uint      `json:"seat_id"`
 	StartTime time.Time `json:"start_time"`
 	EndTime   time.Time `json:"end_time"`
 	CheckedIn bool      `json:"checked_in"`

@@ -24,9 +24,9 @@ func NewCheckInService(ds *DataStorage, jwtSecret string) *CheckinService {
 
 func (h *CheckinService) CheckIn(c *gin.Context) {
 	var checkIn struct {
-		SeatID    string `json:"seat_id"`
-		UserID    string `json:"user_id"`
-		BookingID string `json:"booking_id"`
+		SeatID    uint `json:"seat_id"`
+		UserID    uint `json:"user_id"`
+		BookingID uint `json:"booking_id"`
 	}
 	if err := c.ShouldBindJSON(&checkIn); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

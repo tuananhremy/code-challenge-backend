@@ -115,7 +115,7 @@ func (h *Handler) BookSeat(c *gin.Context) {
 		return
 	}
 
-	userBookings, err := h.ds.FindBookingsByUserID(user.ID)
+	userBookings, err := h.ds.FindOverlapBookingsByUserID(user.ID, fromTime, toTime)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve user bookings"})
 		return
@@ -125,7 +125,7 @@ func (h *Handler) BookSeat(c *gin.Context) {
 		return
 	}
 
-	overlapBookings, err := h.ds.FindOverlapBookings(fromTime, toTime)
+	overlapBookings, err := h.ds.FindOverlapBookingsBySeatID(seat.ID, fromTime, toTime)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve bookings"})
 		return

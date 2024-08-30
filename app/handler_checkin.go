@@ -82,6 +82,6 @@ func (h *CheckinService) ReleaseBooking() {
 			// Log the error
 			log.Printf("release fail")
 		}
-		time.Sleep(1 * time.Minute)
+    time.Sleep(1 * time.Second)
 	}
 }

@@ -39,6 +39,7 @@ var (
 	acceptDateFormats = []string{FormatYYYYMMDD, FormatYYYYMDD, FormatYYYYMMD, FormatYYYYMD}
 	// LocJP Japan location
 	LocJP = time.FixedZone("Asia/Tokyo", TokyoTimeOffset)
+	LocVN = time.FixedZone("Asia/Ho_Chi_Minh", 7*60*60)
 )
 
 // SetTimeZone set the timezone is used to parse date

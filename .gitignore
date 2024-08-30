@@ -25,5 +25,4 @@ go.work.sum
 .env
 
 gorm.db
-config.yaml
 .idea

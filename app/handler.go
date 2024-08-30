@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"time"
 
+	"code-challenge-backend/pkg/dateutil"
 	"github.com/gin-gonic/gin"
 )
 
@@ -93,13 +94,13 @@ func (h *Handler) BookSeat(c *gin.Context) {
 		return
 	}
 
-	fromTime, err := time.Parse(timeFormat, request.FromTime)
+	fromTime, err := time.ParseInLocation(timeFormat, request.FromTime, dateutil.LocVN)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid from_time format"})
 		return
 	}
 
-	toTime, err := time.Parse(timeFormat, request.ToTime)
+	toTime, err := time.ParseInLocation(timeFormat, request.ToTime, dateutil.LocVN)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid to_time format"})
 		return
@@ -110,7 +111,7 @@ func (h *Handler) BookSeat(c *gin.Context) {
 		return
 	}
 
-	if fromTime.In(time.UTC).Before(time.Now().In(time.UTC)) {
+	if fromTime.Before(time.Now().In(dateutil.LocVN)) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid from_time"})
 		return
 	}

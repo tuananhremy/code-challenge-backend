@@ -105,13 +105,23 @@ func (h *Handler) BookSeat(c *gin.Context) {
 		return
 	}
 
+	userBookings, err := h.ds.FindBookingsByUserID(user.ID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve user bookings"})
+		return
+	}
+	if len(userBookings) > 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "User already has a booking"})
+		return
+	}
+
 	overlapBookings, err := h.ds.FindOverlapBookings(fromTime, toTime)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve bookings"})
 		return
 	}
 	if len(overlapBookings) > 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Seat already booked"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Seat already booked on that duration"})
 		return
 	}
 

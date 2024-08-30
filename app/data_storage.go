@@ -80,7 +80,7 @@ func (ds *DataStorage) ReleaseBooking() error {
         FROM bookings
         WHERE checked_in = false
         AND start_time < ?
-    `, time.Now().Add(-10*time.Second)).Scan(&bookings).Error
+    `, time.Now().Add(-10*time.Minute)).Scan(&bookings).Error
 	if err != nil {
 		return err
 	}

@@ -137,5 +137,8 @@ func (h *Handler) BookSeat(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Seat booked successfully"})
+	c.JSON(http.StatusOK, gin.H{
+		"message":    "Seat booked successfully",
+		"booking_id": booking.ID,
+	})
 }

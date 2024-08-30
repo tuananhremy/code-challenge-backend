@@ -8,7 +8,8 @@ import (
 
 type User struct {
 	gorm.Model
-	Email string `json:"email"`
+	Name  string
+	Email string `gorm:"unique"`
 }
 
 type Seat struct {

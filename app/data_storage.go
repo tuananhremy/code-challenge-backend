@@ -1,6 +1,7 @@
 package app
 
 import (
+	"strings"
 	"time"
 
 	"gorm.io/driver/sqlite"
@@ -21,6 +22,18 @@ func NewDataStorage(dns string) *DataStorage {
 	return &DataStorage{
 		mysqlDB: db,
 	}
+}
+
+// Upsert user
+func (ds *DataStorage) Upsert(user *User) error {
+	err := ds.mysqlDB.Save(user).Error
+	if err != nil {
+		if strings.EqualFold("UNIQUE constraint failed: users.email", err.Error()) {
+			return nil
+		}
+		return err
+	}
+	return nil
 }
 
 func (ds *DataStorage) QueryBooking(bookingId uint) (*Booking, error) {
@@ -91,6 +104,16 @@ func (ds *DataStorage) Create(user *User) error {
 
 func (ds *DataStorage) CreateBooking(booking *Booking) error {
 	return ds.mysqlDB.Create(booking).Error
+}
+
+// get user by email
+func (ds *DataStorage) GetUserByEmail(email string) (*User, error) {
+	var user User
+	err := ds.mysqlDB.Where("email = ?", email).First(&user).Error
+	if err != nil {
+		return nil, err
+	}
+	return &user, err
 }
 
 func (ds *DataStorage) GetSeatByNumber(number string) (*Seat, error) {

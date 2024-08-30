@@ -23,6 +23,31 @@ func NewHandler(ds *DataStorage) *Handler {
 	}
 }
 
+func (h *Handler) Login(c *gin.Context) {
+	var request struct {
+		Email string `json:"email"`
+		Name  string `json:"name"`
+	}
+
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		return
+	}
+
+	user := &User{
+		Email: request.Email,
+		Name:  request.Name,
+	}
+
+	err := h.ds.Upsert(user)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Login successful", "user": user})
+}
+
 func (h *Handler) ListAvailableSeats(c *gin.Context) {
 	seats, err := h.ds.FindSeats()
 	if err != nil {
@@ -36,13 +61,19 @@ func (h *Handler) ListAvailableSeats(c *gin.Context) {
 func (h *Handler) BookSeat(c *gin.Context) {
 	var request struct {
 		SeatNumber string `json:"seat_number"`
-		UserID     uint   `json:"user_id"`
+		UserEmail  string `json:"user_email"`
 		FromTime   string `json:"from_time"`
 		ToTime     string `json:"to_time"`
 	}
 
 	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		return
+	}
+
+	user, err := h.ds.GetUserByEmail(request.UserEmail)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
 		return
 	}
 
@@ -65,7 +96,7 @@ func (h *Handler) BookSeat(c *gin.Context) {
 	}
 
 	booking := &Booking{
-		UserID:    request.UserID,
+		UserID:    user.ID,
 		SeatID:    seat.ID,
 		StartTime: fromTime,
 		EndTime:   toTime,

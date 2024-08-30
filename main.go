@@ -32,6 +32,7 @@ func main() {
 
 	r.GET("/seats", h.ListAvailableSeats)
 	r.POST("/book-seat", h.BookSeat)
+	r.POST("/login", h.Login)
 
 	log.Fatal(r.Run(":8080"))
 }

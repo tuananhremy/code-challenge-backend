@@ -95,6 +95,16 @@ func (h *Handler) BookSeat(c *gin.Context) {
 		return
 	}
 
+	if fromTime.After(toTime) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid time range"})
+		return
+	}
+
+	if fromTime.Before(time.Now()) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid from_time"})
+		return
+	}
+
 	overlapBookings, err := h.ds.FindOverlapBookings(fromTime, toTime)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve bookings"})

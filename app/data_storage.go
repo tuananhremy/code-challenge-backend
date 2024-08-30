@@ -165,6 +165,16 @@ func (ds *DataStorage) FindOverlapBookings(startTime, endTime time.Time) ([]Book
 	return bookings, err
 }
 
+// find bookings by user_id
+func (ds *DataStorage) FindBookingsByUserID(userID uint) ([]Booking, error) {
+	var bookings []Booking
+	err := ds.mysqlDB.Where("user_id = ?", userID).Find(&bookings).Error
+	if err != nil {
+		return nil, err
+	}
+	return bookings, err
+}
+
 // gorm transaction
 func (ds *DataStorage) Transaction(fn func(ds *DataStorage) error) error {
 	return ds.mysqlDB.Transaction(func(tx *gorm.DB) error {

@@ -110,7 +110,7 @@ func (h *Handler) BookSeat(c *gin.Context) {
 		return
 	}
 
-	if fromTime.Before(time.Now()) {
+	if fromTime.In(time.UTC).Before(time.Now().In(time.UTC)) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid from_time"})
 		return
 	}

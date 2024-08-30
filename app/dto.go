@@ -1,5 +1,7 @@
 package app
 
+import "time"
+
 type (
 	RegisterRequest struct {
 		Username string `json:"username"`
@@ -14,5 +16,19 @@ type (
 	BookSeatRequest struct {
 		SeatNumber string `json:"seat_number"`
 		UserID     uint   `json:"user_id"`
+	}
+)
+
+type (
+	CheckinRequest struct {
+	}
+
+	booking struct {
+		ID        int
+		UserID    int
+		SeatID    int
+		StartTime time.Time
+		EndTime   time.Time
+		CheckedIn bool
 	}
 )

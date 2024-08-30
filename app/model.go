@@ -1,6 +1,10 @@
 package app
 
-import "gorm.io/gorm"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 type User struct {
 	gorm.Model
@@ -16,7 +20,11 @@ type Seat struct {
 }
 
 type Booking struct {
-	gorm.Model
-	UserID uint `json:"user_id"`
-	SeatID uint `json:"seat_id"`
+	ID        int       `json:"id"`
+	UserID    string    `json:"user_id"`
+	SeatID    string    `json:"seat_id"`
+	StartTime time.Time `json:"start_time"`
+	EndTime   time.Time `json:"end_time"`
+	CheckedIn bool      `json:"checked_in"`
+	CreatedAt time.Time `json:"created_at"`
 }

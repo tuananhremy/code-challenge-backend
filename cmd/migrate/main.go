@@ -3,7 +3,8 @@ package main
 import (
 	"log"
 
-	"code-challenge/app"
+	"code-challenge-backend/app"
+
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )

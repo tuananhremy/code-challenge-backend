@@ -5,120 +5,76 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt"
-	"golang.org/x/crypto/bcrypt"
+)
+
+const (
+	timeFormat = "2006-01-02 15:04"
 )
 
 type (
 	Handler struct {
-		ds        *DataStorage
-		jwtSecret string
-	}
-
-	Claims struct {
-		UserID uint `json:"user_id"`
-		jwt.StandardClaims
+		ds *DataStorage
 	}
 )
 
-func NewHandler(ds *DataStorage, jwtSecret string) *Handler {
+func NewHandler(ds *DataStorage) *Handler {
 	return &Handler{
-		ds:        ds,
-		jwtSecret: jwtSecret,
+		ds: ds,
 	}
 }
 
-func (h *Handler) Register(c *gin.Context) {
-	var req RegisterRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	err = h.ds.Create(&User{
-		Username: req.Username,
-		Password: string(hashedPassword),
-	})
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"message": "registration successful"})
-}
-
-func (h *Handler) Login(c *gin.Context) {
-	var loginDTO LoginRequest
-	if err := c.ShouldBindJSON(&loginDTO); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	user, err := h.ds.GetUserByUsername(loginDTO.Username)
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
-		return
-	}
-
-	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(loginDTO.Password))
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
-		return
-	}
-
-	expirationTime := time.Now().Add(5 * time.Minute)
-	claims := &Claims{
-		UserID: user.ID,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: expirationTime.Unix(),
-		},
-	}
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString([]byte(h.jwtSecret))
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not generate token"})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"token": tokenString})
-}
-
-func (h *Handler) GetSeats(c *gin.Context) {
+func (h *Handler) ListAvailableSeats(c *gin.Context) {
 	seats, err := h.ds.FindSeats()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
 		return
 	}
+
 	c.JSON(http.StatusOK, seats)
 }
 
 func (h *Handler) BookSeat(c *gin.Context) {
-	var req BookSeatRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
+	var request struct {
+		SeatNumber string `json:"seat_number"`
+		UserID     uint   `json:"user_id"`
+		FromTime   string `json:"from_time"`
+		ToTime     string `json:"to_time"`
 	}
-	err := h.ds.Transaction(func(ds *DataStorage) error {
-		seat, err := h.ds.GetSeatByNumber(req.SeatNumber)
-		if err != nil {
-			return err
-		}
-		seat.Booked = true
-		seat.BookedBy = req.UserID
-		err = h.ds.SaveSeat(seat)
-		if err != nil {
-			return err
-		}
-		return nil
-	})
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "seat booked successfully"})
+	seat, err := h.ds.GetSeatByNumber(request.SeatNumber)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Seat not found"})
+		return
+	}
+
+	fromTime, err := time.Parse(timeFormat, request.FromTime)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid from_time format"})
+		return
+	}
+
+	toTime, err := time.Parse(timeFormat, request.ToTime)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid to_time format"})
+		return
+	}
+
+	booking := &Booking{
+		UserID:   request.UserID,
+		SeatID:   seat.ID,
+		FromTime: fromTime,
+		ToTime:   toTime,
+	}
+
+	if err := h.ds.CreateBooking(booking); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to book seat"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Seat booked successfully"})
 }

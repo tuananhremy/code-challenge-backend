@@ -8,15 +8,12 @@ import (
 
 type User struct {
 	gorm.Model
-	Username string `json:"username"`
-	Password string `json:"password"`
+	Email string `json:"email"`
 }
 
 type Seat struct {
 	gorm.Model
-	Number   string `json:"number"`
-	Booked   bool   `json:"booked"`
-	BookedBy uint   `json:"booked_by"`
+	Number string `json:"number"`
 }
 
 type Booking struct {

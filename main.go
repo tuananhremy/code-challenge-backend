@@ -29,5 +29,8 @@ func main() {
 	noAuth := r.Group("/api/v1")
 	noAuth.POST("/checkin", checkin.CheckIn)
 
+	r.GET("/seats", h.ListAvailableSeats)
+	r.POST("/book-seat", h.BookSeat)
+
 	log.Fatal(r.Run(":8080"))
 }

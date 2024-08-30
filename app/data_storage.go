@@ -89,11 +89,17 @@ func (ds *DataStorage) Create(user *User) error {
 	return ds.mysqlDB.Create(user).Error
 }
 
-// GetUserByUsername Get user by username
-func (ds *DataStorage) GetUserByUsername(username string) (*User, error) {
-	var user User
-	err := ds.mysqlDB.Where("username = ?", username).First(&user).Error
-	return &user, err
+func (ds *DataStorage) CreateBooking(booking *Booking) error {
+	return ds.mysqlDB.Create(booking).Error
+}
+
+func (ds *DataStorage) GetSeatByNumber(number string) (*Seat, error) {
+	var seat Seat
+	err := ds.mysqlDB.Where("number = ?", number).First(&seat).Error
+	if err != nil {
+		return nil, err
+	}
+	return &seat, err
 }
 
 func (ds *DataStorage) Booking(id uint) (*User, error) {
@@ -107,18 +113,6 @@ func (ds *DataStorage) FindSeats() ([]Seat, error) {
 	var seats []Seat
 	err := ds.mysqlDB.Find(&seats).Error
 	return seats, err
-}
-
-// Book seat
-func (ds *DataStorage) SaveSeat(seat *Seat) error {
-	return ds.mysqlDB.Save(seat).Error
-}
-
-// Get seat by ID
-func (ds *DataStorage) GetSeatByNumber(number string) (*Seat, error) {
-	var seat Seat
-	err := ds.mysqlDB.Where("number = ?", number).First(&seat).Error
-	return &seat, err
 }
 
 // gorm transaction

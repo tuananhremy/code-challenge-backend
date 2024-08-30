@@ -27,6 +27,7 @@ func main() {
 	r.Use(gin.Logger())
 
 	r.GET("/seats", h.ListAvailableSeats)
+	r.POST("/book-seat", h.BookSeat)
 
 	log.Fatal(r.Run(":8080"))
 }
